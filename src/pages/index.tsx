@@ -17,11 +17,11 @@ export default function Home() {
             Create <span className="text-[hsl(200,100%,70%)]">DNA</span> Todo
           </h1>
 
-          <Todos />
-
           <div className="flex flex-col items-center gap-2">
             <AuthShowcase />
           </div>
+
+          <Todos />
         </div>
       </main>
     </>
@@ -36,7 +36,7 @@ function AuthShowcase() {
       <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
         onClick={
-          sessionData ? () => void signOut() : () => void signIn("discord")
+          sessionData ? () => void signOut() : () => void signIn()
         }
       >
         {sessionData ? "Sign out" : "Sign in"}
