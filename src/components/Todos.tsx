@@ -87,7 +87,7 @@ export default function Todos() {
                 return;
               }
               createTodo.mutate({
-                title: inputValue!,
+                title: inputValue,
               });
               setInputValue("");
               toast({ title: "New todo added." });
