@@ -36,6 +36,9 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  jwt: {
+    maxAge: 60 * 60 * 24,
+  },
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
