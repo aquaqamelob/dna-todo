@@ -34,7 +34,7 @@ export default function Todos() {
   return (
     <>
       <div className="space-y-4 pt-4">
-        {todos
+        {sessionData?.user && todos
           ? todos.map((item: Todo) => (
               <div
                 className="flex w-80 justify-between gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
@@ -69,7 +69,7 @@ export default function Todos() {
                 createTodo.mutate({
                   title: inputValue,
                 });
-                setInputValue(""); 
+                setInputValue("");
                 toast({ title: "New todo added." });
               }
             }}
