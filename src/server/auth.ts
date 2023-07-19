@@ -6,6 +6,24 @@ import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
+import type { User } from "next-auth";
+
+type UserId = string;
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: UserId;
+  }
+}
+
+declare module "next-auth" {
+  interface Session {
+    user: User & {
+      id: UserId;
+    };
+  }
+}
+
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
@@ -25,7 +43,7 @@ export const authOptions: NextAuthOptions = {
   //   }),
   // },
   callbacks: {
-    async session({ token, session }) {
+    session({ token, session }) {
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;
@@ -44,7 +62,7 @@ export const authOptions: NextAuthOptions = {
       });
 
       if (!dbUser) {
-        token.id = user!.id;
+        token.id = user.id;
         return token;
       }
 
