@@ -1,10 +1,11 @@
 import { useSession } from "next-auth/react";
-import { api, RouterOutputs } from "~/utils/api";
+import { api, RouterOutputs } from "~/lib/api";
 import { Input } from "./ui/Input";
 import { DeleteIcon, SendIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/Button";
 import { useToast } from "./ui/use-toast";
+import { cn } from "~/lib/utils";
 
 export default function Todos() {
   const { data: sessionData } = useSession();
@@ -27,6 +28,11 @@ export default function Todos() {
     },
   });
 
+  const toggleTodo = api.todo.toggle.useMutation({
+    onSuccess: () => {
+      void refetchTodos();
+    },
+  });
   type Todo = RouterOutputs["todo"]["getAll"][0];
 
   const [inputValue, setInputValue] = useState<string>();
@@ -37,8 +43,14 @@ export default function Todos() {
         {sessionData?.user && todos
           ? todos.map((item: Todo) => (
               <div
-                className="flex w-80 justify-between gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
+                className={cn(
+                  "flex w-80 justify-between gap-4 rounded-xl bg-white/10 p-4 text-white opacity-100 hover:bg-white/20",
+                  item.isComplete && "opacity-40"
+                )}
                 key={item.id}
+                onClick={() => {
+                  toggleTodo.mutate({ id: item.id });
+                }}
               >
                 <h3 className="truncate text-xl font-bold sm:text-2xl">
                   {item.title}

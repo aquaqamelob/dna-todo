@@ -25,6 +25,25 @@ export const todoRouter = createTRPCRouter({
         data: {
           title: input.title,
           userId: ctx.session.user.id,
+          isComplete: false,
+        },
+      });
+    }),
+  toggle: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const todo = await ctx.prisma.todo.findFirst({
+        where: {
+          id: input.id,
+        },
+      });
+
+      return ctx.prisma.todo.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          isComplete: todo ? !todo.isComplete : false,
         },
       });
     }),

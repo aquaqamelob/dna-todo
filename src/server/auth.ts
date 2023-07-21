@@ -88,6 +88,9 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
+      httpOptions: {
+        timeout: 20000,
+      },
     }),
     /**
      * ...add more providers here.
