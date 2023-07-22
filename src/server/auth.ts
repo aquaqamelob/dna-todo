@@ -1,27 +1,28 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
-import { getServerSession, type NextAuthOptions } from "next-auth";
+import {
+  DefaultSession,
+  getServerSession,
+  type NextAuthOptions,
+} from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
-import type { User } from "next-auth";
-
-type UserId = string;
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: UserId;
-  }
-}
-
 declare module "next-auth" {
-  interface Session {
-    user: User & {
-      id: UserId;
+  interface Session extends DefaultSession {
+    user: DefaultSession["user"] & {
+      id: string;
+      // ...other properties
+      // role: UserRole;
     };
   }
+
+  // interface User {
+  //   // ...other properties
+  //   // role: UserRole;
+  // }
 }
 
 /**
@@ -33,48 +34,12 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  // callbacks: {
-  //   session: ({ session, user }) => ({
-  //     ...session,
-  //     user: {
-  //       ...session.user,
-  //       id: user.id,
-  //     },
-  //   }),
-  // },
   callbacks: {
-    session({ token, session }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
+    session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
       }
-
       return session;
-    },
-
-    async jwt({ token, user }) {
-      const dbUser = await prisma.user.findFirst({
-        where: {
-          email: token.email,
-        },
-      });
-
-      if (!dbUser) {
-        token.id = user.id;
-        return token;
-      }
-
-      return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        image: dbUser.image,
-      };
-    },
-    redirect() {
-      return "/";
     },
   },
   adapter: PrismaAdapter(prisma),
@@ -89,7 +54,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
       httpOptions: {
-        timeout: 20000,
+        timeout: 40000,
       },
     }),
     /**
